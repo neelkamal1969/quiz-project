@@ -1,0 +1,46 @@
+/* Tailwind CSS Base (Preflight + Base styles) */
+@import "tailwindcss/preflight";
+
+/* Tailwind CSS Utilities */
+@tailwind utilities;
+
+/* Import Tailwind's full base layer (recommended for Vite + Tailwind setup) */
+@import "tailwindcss";
+
+/* ================================================
+   Custom Utility Classes
+   ================================================ */
+@layer utilities {
+  
+  /* 3D Perspective Utilities */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+
+  /* Scrollbar Utilities */
+  .scrollbar-hide {
+    -ms-overflow-style: none;       /* Internet Explorer & Edge */
+    scrollbar-width: none;          /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;                  /* Chrome, Safari, Opera */
+  }
+
+  /* Optional: Smooth scrolling for better UX */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+  }
+}

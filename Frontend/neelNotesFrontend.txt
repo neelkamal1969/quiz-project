@@ -1,0 +1,27 @@
+Files i have to exclude from copyright submission:
+
+1. .vscode/settings.json
+2. node_modules/
+3. public/vite.svg
+4. assets/react.svg
+5. package.json
+6. .env
+7. package-lock.json
+8. .gitignore
+9. eslint.config.js
+10. index.html
+11. neelNotesFrontend.txt
+12. defaultREADME.md
+13. vercel.json
+14. vite.config.js
+
+
+
+
+After , I get the copyright successfully, i need to thank my friend for support and in each copyrightable file in this project i need to add following on the top:
+/*
+ * Copyright © 2025–2026 Neelkamal Gupta
+ * All rights reserved.
+ */
+
+

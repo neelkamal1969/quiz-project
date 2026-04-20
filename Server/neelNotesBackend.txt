@@ -1,0 +1,18 @@
+Files i have to exclude from copyright submission:
+
+1. node_modules/
+2. package.json
+3. .env
+4. package-lock.json
+5. .gitignore
+6. neelNotesBackend.txt
+
+
+
+After , I get the copyright successfully, i need to thank my friend for support and in each copyrightable file in this project i need to add following on the top:
+/*
+ * Copyright © 2025–2026 Neelkamal Gupta
+ * All rights reserved.
+ */
+
+
