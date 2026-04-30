@@ -687,3 +687,6 @@ Contribute
 <p align="center">
 <img src="https://capsule-render.vercel.app/api?type=waving&section=footer"/>
 </p>
+
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/neelkamal1969/quiz-project)
