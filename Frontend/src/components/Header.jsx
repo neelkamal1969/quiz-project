@@ -1,140 +1,26 @@
-// import React from 'react';
-// import { Link, useLocation, useNavigate } from 'react-router-dom';
-
-// export default function Header() {
-//   const location = useLocation();
-//   const navigate = useNavigate();
-  
-//   // Determine authentication status based on stored token
-//   const isAuthenticated = !!localStorage.getItem('token');
-
-//   // Retrieve user object safely from localStorage
-//   const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-//   // Handles user logout by clearing stored data and redirecting
-//   const handleLogout = () => {
-//     localStorage.clear(); // Clears token, user info, and any stored profile data
-//     navigate('/login');
-//   };
-
-//   // Utility function to apply active styling based on current route
-//   const isActive = (path) => 
-//     location.pathname === path 
-//       ? "bg-blue-600 text-white" 
-//       : "text-slate-600 hover:bg-slate-100";
-
-//   return (
-//     <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-3">
-//       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        
-//         {/* Logo Section */}
-//         <Link to="/" className="flex items-center gap-2 group">
-//           <div className="bg-blue-600 p-2 rounded-lg group-hover:rotate-12 transition-transform shadow-sm">
-//             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//               <path 
-//                 strokeLinecap="round" 
-//                 strokeLinejoin="round" 
-//                 strokeWidth="2" 
-//                 d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5S19.832 5.477 21 6.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" 
-//               />
-//             </svg>
-//           </div>
-//           <span className="font-bold text-xl tracking-tight text-slate-800 hidden sm:block">
-//             StudyAI
-//           </span>
-//         </Link>
-
-//         {/* Navigation Links */}
-//         <div className="flex items-center gap-2">
-//           {isAuthenticated ? (
-//             <>
-//               <Link 
-//                 to="/myquestions" 
-//                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${isActive('/myquestions')}`}
-//               >
-//                 Question Bank
-//               </Link>
-
-//               <Link 
-//                 to="/valueInput" 
-//                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${isActive('/valueInput')}`}
-//               >
-//                 Topic Search
-//               </Link>
-
-//               <Link 
-//                 to="/imageInput" 
-//                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${isActive('/imageInput')}`}
-//               >
-//                 Image OCR
-//               </Link>
-
-//               <Link 
-//                 to="/profile-setup" 
-//                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${isActive('/profile-setup')}`}
-//               >
-//                 Profile
-//               </Link>
-
-//               {/* Divider */}
-//               <div className="h-6 w-[1px] bg-slate-200 mx-2"></div>
-
-//               {/* Logout Button */}
-//               <button 
-//                 onClick={handleLogout}
-//                 className="px-4 py-2 rounded-full text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
-//               >
-//                 Logout
-//               </button>
-//             </>
-//           ) : (
-//             <>
-//               <Link 
-//                 to="/login" 
-//                 className="px-4 py-2 rounded-full text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors"
-//               >
-//                 Login
-//               </Link>
-
-//               <Link 
-//                 to="/signup" 
-//                 className="px-4 py-2 rounded-lg text-sm font-bold bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-md"
-//               >
-//                 Get Started
-//               </Link>
-//             </>
-//           )}
-//         </div>
-
-//       </div>
-//     </nav>
-//   );
-// }
-
-// //Copyrightable
-
-
-
-
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { ROUTES } from '../lib/constants';
 
 // ─── Nav items config ────────────────────────────────────────────────────────
 const NAV_ITEMS = [
-  { to: '/myquestions',icon: '▦', fullLabel: 'Question Bank' },
-  { to: '/valueInput',icon: '◈', fullLabel: 'Topic Search'  },
-  { to: '/imageInput',icon: '◎', fullLabel: 'Image OCR'     },
-  { to: '/profile-setup',icon: '◉', fullLabel: 'Profile'      },
+  { to: ROUTES.VAULT, icon: '▦', fullLabel: 'Question Bank' },
+  { to: ROUTES.REVIEW, icon: '⟳', fullLabel: 'Review' },
+  { to: ROUTES.ANALYTICS, icon: '▥', fullLabel: 'Analytics' },
+  { to: ROUTES.QUIZ, icon: '◆', fullLabel: 'Quiz' },
+  { to: ROUTES.VALUE_INPUT, icon: '◈', fullLabel: 'Topic Search' },
+  { to: ROUTES.IMAGE_INPUT, icon: '◎', fullLabel: 'Image OCR' },
+  { to: ROUTES.PROFILE_SETUP, icon: '◉', fullLabel: 'Profile' },
 ];
 
 const DOCK_POSITIONS = ['top', 'left', 'right'];
 const DOCK_ICONS = { top: '▬', left: '▐', right: '▌' };
 
 export default function Header() {
-  const location     = useNavigate ? useLocation() : { pathname: '/' };
-  const navigate     = useNavigate();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated, logout } = useAuth();
   const [dock, setDock]         = useState('top');       // 'top' | 'left' | 'right'
   const [menuOpen, setMenuOpen] = useState(false);        // mobile hamburger
   const [tilt, setTilt]         = useState({ x: 0, y: 0 });
@@ -143,12 +29,9 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const navRef = useRef(null);
 
-  const isAuthenticated = !!localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-
   const handleLogout = () => {
-    localStorage.clear();
-    navigate('/login');
+    logout();
+    navigate(ROUTES.LOGIN);
   };
 
   const isActive = (path) => location.pathname === path;
@@ -196,13 +79,13 @@ export default function Header() {
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
 
     :root {
-      --nav-indigo: #4f46e5;
-      --nav-sky:    #0ea5e9;
-      --nav-ink:    #1e1b4b;
-      --nav-glass:  rgba(255,255,255,0.72);
-      --nav-border: rgba(99,102,241,0.18);
-      --nav-shadow: 0 8px 40px rgba(79,70,229,0.18), 0 1.5px 0 rgba(255,255,255,0.9) inset;
-      --nav-shadow-scrolled: 0 12px 50px rgba(79,70,229,0.28), 0 1.5px 0 rgba(255,255,255,0.9) inset;
+      --nav-indigo: var(--accent-light);
+      --nav-sky:    #38bdf8;
+      --nav-ink:    #f1f5f9;
+      --nav-glass:  rgba(13,18,32,0.72);
+      --nav-border: rgba(255,255,255,0.12);
+      --nav-shadow: 0 8px 40px rgba(0,0,0,0.45), 0 1.5px 0 rgba(255,255,255,0.08) inset;
+      --nav-shadow-scrolled: 0 12px 50px rgba(0,0,0,0.55), 0 1.5px 0 rgba(255,255,255,0.08) inset;
     }
 
     /* ─── TOP DOCK ─── */
@@ -268,11 +151,13 @@ export default function Header() {
       border-radius: inherit;
       background: linear-gradient(
         135deg,
-        rgba(255,255,255,0.55) 0%,
-        rgba(99,102,241,0.08) 40%,
-        rgba(14,165,233,0.06) 70%,
-        rgba(255,255,255,0.3) 100%
+        rgba(255,255,255,0.10) 0%,
+        rgba(var(--accent-rgb),0.14) 40%,
+        rgba(14,165,233,0.10) 70%,
+        rgba(217,70,239,0.08) 100%
       );
+      background-size: 200% 200%;
+      animation: ds-holo-pan 8s ease infinite;
       pointer-events: none;
       z-index: 0;
     }
@@ -313,8 +198,8 @@ export default function Header() {
     }
 
     /* ─── Divider ─── */
-    .nav-divider-v { width: 1px; height: 20px; background: rgba(99,102,241,0.15); margin: 0 4px; }
-    .nav-divider-h { height: 1px; width: 20px; background: rgba(99,102,241,0.15); margin: 4px 0; }
+    .nav-divider-v { width: 1px; height: 20px; background: rgba(var(--accent-rgb),0.15); margin: 0 4px; }
+    .nav-divider-h { height: 1px; width: 20px; background: rgba(var(--accent-rgb),0.15); margin: 4px 0; }
 
     /* ─── Nav link ─── */
     .nav-link {
@@ -324,7 +209,7 @@ export default function Header() {
       border-radius: 100px;
       font-family: 'DM Sans', sans-serif;
       font-size: 13px; font-weight: 600;
-      color: #475569;
+      color: #cbd5e1;
       text-decoration: none;
       transition: color 0.2s, background 0.2s;
       white-space: nowrap;
@@ -342,7 +227,7 @@ export default function Header() {
     .nav-left .nav-link .link-icon,
     .nav-right .nav-link .link-icon { font-size: 18px; }
 
-    .nav-link:hover { color: var(--nav-indigo); background: rgba(99,102,241,0.08); }
+    .nav-link:hover { color: var(--nav-indigo); background: rgba(var(--accent-rgb),0.18); }
     .nav-link:hover .link-icon { transform: scale(1.25) rotate(-8deg); }
 
     .nav-link.active {
@@ -368,7 +253,7 @@ export default function Header() {
       padding: 7px 14px; border-radius: 100px;
       font-family: 'DM Sans', sans-serif;
       font-size: 13px; font-weight: 600;
-      color: #ef4444; background: transparent; border: none; cursor: pointer;
+      color: #fb7185; background: transparent; border: none; cursor: pointer;
       transition: background 0.2s, color 0.2s;
       white-space: nowrap;
     }
@@ -406,8 +291,8 @@ export default function Header() {
     }
     .dock-trigger {
       width: 30px; height: 30px; border-radius: 10px;
-      background: rgba(99,102,241,0.1);
-      border: 1.5px solid rgba(99,102,241,0.2);
+      background: rgba(var(--accent-rgb),0.1);
+      border: 1.5px solid rgba(var(--accent-rgb),0.2);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       font-size: 12px; color: var(--nav-indigo);
@@ -416,11 +301,11 @@ export default function Header() {
       margin-left: 4px;
     }
     .nav-left .dock-trigger, .nav-right .dock-trigger { margin-left: 0; margin-top: 4px; }
-    .dock-trigger:hover { background: rgba(99,102,241,0.18); transform: scale(1.1); }
+    .dock-trigger:hover { background: rgba(var(--accent-rgb),0.18); transform: scale(1.1); }
 
     .dock-picker {
       position: absolute;
-      background: rgba(255,255,255,0.95);
+      background: rgba(13,18,32,0.96);
       backdrop-filter: blur(20px);
       border: 1.5px solid var(--nav-border);
       border-radius: 16px;
@@ -450,14 +335,14 @@ export default function Header() {
       white-space: nowrap;
       border: none; background: transparent;
     }
-    .dock-option:hover { background: rgba(99,102,241,0.08); color: var(--nav-indigo); }
+    .dock-option:hover { background: rgba(var(--accent-rgb),0.08); color: var(--nav-indigo); }
     .dock-option.selected {
       background: linear-gradient(135deg, rgba(79,70,229,0.12), rgba(14,165,233,0.08));
       color: var(--nav-indigo);
     }
     .dock-option-icon {
       width: 26px; height: 26px; border-radius: 8px;
-      background: rgba(99,102,241,0.1);
+      background: rgba(var(--accent-rgb),0.1);
       display: flex; align-items: center; justify-content: center;
       font-size: 13px;
     }
@@ -470,12 +355,12 @@ export default function Header() {
     .hamburger {
       display: none;
       width: 34px; height: 34px; border-radius: 10px;
-      background: rgba(99,102,241,0.08); border: 1.5px solid rgba(99,102,241,0.15);
+      background: rgba(var(--accent-rgb),0.08); border: 1.5px solid rgba(var(--accent-rgb),0.15);
       flex-direction: column; align-items: center; justify-content: center; gap: 5px;
       cursor: pointer; transition: background 0.2s;
       margin-left: 6px;
     }
-    .hamburger:hover { background: rgba(99,102,241,0.16); }
+    .hamburger:hover { background: rgba(var(--accent-rgb),0.16); }
     .ham-line {
       width: 16px; height: 1.5px; border-radius: 2px;
       background: var(--nav-indigo);
@@ -488,7 +373,7 @@ export default function Header() {
     /* ─── Mobile dropdown (top dock only) ─── */
     .mobile-menu {
       position: absolute; top: calc(100% + 8px); left: 0; right: 0;
-      background: rgba(255,255,255,0.96);
+      background: rgba(13,18,32,0.97);
       backdrop-filter: blur(24px);
       border: 1.5px solid var(--nav-border);
       border-radius: 22px;
@@ -506,14 +391,14 @@ export default function Header() {
       text-decoration: none;
       transition: background 0.15s, color 0.15s;
     }
-    .mobile-nav-link:hover { background: rgba(99,102,241,0.07); color: var(--nav-indigo); }
+    .mobile-nav-link:hover { background: rgba(var(--accent-rgb),0.07); color: var(--nav-indigo); }
     .mobile-nav-link.active {
       background: linear-gradient(135deg, rgba(79,70,229,0.12), rgba(14,165,233,0.07));
       color: var(--nav-indigo);
     }
     .mobile-icon {
       width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
-      background: rgba(99,102,241,0.08);
+      background: rgba(var(--accent-rgb),0.08);
       display: flex; align-items: center; justify-content: center;
       font-size: 16px;
     }
@@ -521,7 +406,7 @@ export default function Header() {
       background: linear-gradient(135deg, #4f46e5, #0ea5e9);
       color: white;
     }
-    .mobile-divider { height: 1px; background: rgba(99,102,241,0.1); margin: 4px 0; }
+    .mobile-divider { height: 1px; background: rgba(var(--accent-rgb),0.1); margin: 4px 0; }
     .mobile-logout {
       display: flex; align-items: center; gap: 12px;
       padding: 12px 14px; border-radius: 14px;
@@ -723,6 +608,7 @@ export default function Header() {
       {/* ── Body padding so content doesn't hide behind the nav ── */}
       <style>{`
         body {
+          transition: padding 0.35s var(--ease-out);
           ${dock === 'top'    ? 'padding-top: 72px !important; padding-left: 0 !important; padding-right: 0 !important;' : ''}
           ${dock === 'left'   ? 'padding-left: 80px !important; padding-top: 0 !important;'  : ''}
           ${dock === 'right'  ? 'padding-right: 80px !important; padding-top: 0 !important;' : ''}

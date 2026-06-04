@@ -1,256 +1,108 @@
-// import React, { useState, useEffect } from 'react';
-// import { useNavigate } from 'react-router-dom';
-
-// export default function Vault() {
-//   const [cards, setCards] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [expandedCard, setExpandedCard] = useState(null); // Tracks which card is "open"
-//   const navigate = useNavigate();
-//   const userData = JSON.parse(localStorage.getItem('user'));
-
-//   useEffect(() => {
-//     if (!userData) return navigate('/login');
-//     fetchVault();
-//   }, []);
-
-//   const fetchVault = async () => {
-//     try {
-//       const response = await fetch(`${import.meta.env.VITE_API_URL}/vault/${userData.id}`);
-//       const data = await response.json();
-//       setCards(data);
-//     } catch (err) {
-//       console.error("Vault error:", err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const deleteCard = async (e, id) => {
-//     e.stopPropagation(); // Don't open the card when clicking delete
-//     if (!window.confirm("Remove this card from your vault?")) return;
-//     try {
-//       await fetch(`${import.meta.env.VITE_API_URL}/vault/${id}`, { method: 'DELETE' });
-//       setCards(cards.filter(card => card.id !== id));
-//       if (expandedCard?.id === id) setExpandedCard(null);
-//     } catch (err) {
-//       alert("Delete failed");
-//     }
-//   };
-
-//   if (loading) return <div className="p-20 text-center animate-pulse text-slate-400">Opening the vault...</div>;
-
-//   return (
-//     <div className="min-h-screen bg-slate-50 p-6 md:p-12 relative">
-//       <div className="max-w-6xl mx-auto">
-//         <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-//           <div>
-//             <h1 className="text-3xl font-extrabold text-slate-900">Your Study Vault</h1>
-//             <p className="text-slate-500 font-medium">Review your {cards.length} saved masterpieces.</p>
-//           </div>
-//           <button 
-//             onClick={() => navigate('/')}
-//             className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-95"
-//           >
-//             + New Session
-//           </button>
-//         </header>
-
-//         {cards.length === 0 ? (
-//           <div className="text-center py-32 bg-white rounded-3xl border-2 border-dashed border-slate-200">
-//             <div className="text-5xl mb-4">📂</div>
-//             <p className="text-slate-400 font-medium italic text-lg">Your vault is currently empty.</p>
-//           </div>
-//         ) : (
-//           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-//             {cards.map((card) => (
-//               <div 
-//                 key={card.id} 
-//                 onClick={() => setExpandedCard(card)}
-//                 className="group cursor-pointer bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-indigo-300 transition-all flex flex-col h-64"
-//               >
-//                 <div className="flex justify-between items-start mb-3">
-//                   <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest bg-indigo-50 px-2 py-1 rounded">Question</span>
-//                   <button onClick={(e) => deleteCard(e, card.id)} className="text-slate-300 hover:text-red-500 transition-colors">
-//                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-//                       <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z" clipRule="evenodd" />
-//                     </svg>
-//                   </button>
-//                 </div>
-
-//                 {/* Question Preview */}
-//                 <h3 className="text-lg font-bold text-slate-800 line-clamp-3 mb-4 flex-grow">
-//                   {card.question}
-//                 </h3>
-
-//                 <div className="pt-4 border-t border-slate-50 flex justify-between items-center text-indigo-600 font-bold text-sm">
-//                   <span>View Full Answer</span>
-//                   <span>→</span>
-//                 </div>
-//               </div>
-//             ))}
-//           </div>
-//         )}
-//       </div>
-
-//       {/* --- EXPANDED CARD MODAL --- */}
-//       {expandedCard && (
-//         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-//           <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
-//             {/* Modal Header */}
-//             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-indigo-600 text-white">
-//               <h2 className="font-bold text-lg uppercase tracking-wide">Full Card View</h2>
-//               <button 
-//                 onClick={() => setExpandedCard(null)}
-//                 className="p-2 hover:bg-white/20 rounded-full transition-colors"
-//               >
-//                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-//                 </svg>
-//               </button>
-//             </div>
-
-//             {/* Modal Content - Scrollable */}
-//             <div className="p-8 overflow-y-auto custom-scrollbar space-y-8">
-//               <div>
-//                 <span className="text-xs font-bold text-indigo-500 uppercase tracking-widest block mb-2">The Question</span>
-//                 <p className="text-2xl font-bold text-slate-800 leading-tight">
-//                   {expandedCard.question}
-//                 </p>
-//               </div>
-
-//               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-//                 <span className="text-xs font-bold text-emerald-500 uppercase tracking-widest block mb-2">The Answer</span>
-//                 <p className="text-lg text-slate-700 leading-relaxed whitespace-pre-wrap">
-//                   {expandedCard.answer}
-//                 </p>
-//               </div>
-//             </div>
-
-//             {/* Modal Footer */}
-//             <div className="p-6 border-t border-slate-100 text-center">
-//               <button 
-//                 onClick={() => setExpandedCard(null)}
-//                 className="w-full py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors"
-//               >
-//                 Close View
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../lib/api';
+import { getToken, getUser } from '../lib/auth';
+import { ENDPOINTS, ROUTES } from '../lib/constants';
+import { useToast } from '../context/ToastContext';
+import { useConfirm } from '../context/ConfirmContext';
+import GlassCard from '../components/ui/GlassCard';
+import Spinner from '../components/ui/Spinner';
+import Badge from '../components/ui/Badge';
+import EmptyState from '../components/ui/EmptyState';
+import Modal from '../components/ui/Modal';
+import Icon3D from '../components/ui/Icon3D';
+import { randomQuote } from '../lib/quotes';
+
+const ctaBase = {
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+  padding: '12px 20px', borderRadius: 'var(--radius-md)', fontWeight: 'var(--weight-bold)',
+  fontSize: 'var(--text-sm)', border: 'none', cursor: 'pointer',
+  transition: 'transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast)',
+};
+const ctaPrimary = { ...ctaBase, background: 'var(--grad-primary)', color: '#fff', boxShadow: 'var(--shadow-glow)' };
+const ctaGhost = { ...ctaBase, background: 'var(--glass-bg)', color: 'var(--text-primary)', border: '1.5px solid var(--glass-border)' };
+const controlStyle = {
+  background: 'var(--glass-bg)', border: '1.5px solid var(--glass-border)', color: 'var(--text-primary)',
+  borderRadius: 'var(--radius-full)', padding: '11px 18px', fontSize: 'var(--text-sm)', outline: 'none', fontFamily: 'var(--font-sans)',
+};
 
 export default function Vault() {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [expandedCard, setExpandedCard] = useState(null);     // Detail view
-  const [practiceCards, setPracticeCards] = useState([]);     // For interactive flashcard mode
+  const [expandedCard, setExpandedCard] = useState(null);
+  const [practiceCards, setPracticeCards] = useState([]);
   const [practiceIndex, setPracticeIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('newest');             // newest | oldest | az
+  const [sortBy, setSortBy] = useState('newest');
   const [deletingId, setDeletingId] = useState(null);
-  const [motivationalQuote, setMotivationalQuote] = useState(null);
+  const [motivationalQuote, setMotivationalQuote] = useState(() => randomQuote());
+  const [deckFilter, setDeckFilter] = useState('__all__');
 
   const navigate = useNavigate();
-  const userData = JSON.parse(localStorage.getItem('user') || '{}');
-  const token = localStorage.getItem('token');
+  const toast = useToast();
+  const confirm = useConfirm();
+  const userData = getUser() || {};
+  const token = getToken();
 
-  // Fetch vault + quote
   useEffect(() => {
     if (!userData?.id || !token) {
-      navigate('/login');
+      navigate(ROUTES.LOGIN);
       return;
     }
     fetchVault();
-    fetchMotivationalQuote();
+  }, []);
+
+  // Rotate the motivational quote every minute while the page is open.
+  useEffect(() => {
+    const id = setInterval(() => setMotivationalQuote(randomQuote()), 60000);
+    return () => clearInterval(id);
   }, []);
 
   const fetchVault = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/vault/${userData.id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      const data = await response.json();
+      const data = await api.get(ENDPOINTS.VAULT(userData.id));
       setCards(data);
     } catch (err) {
-      console.error("Vault fetch error:", err);
+      console.error('Vault fetch error:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Free public quote API (no key, fully license-free, motivational/educational)
-  const fetchMotivationalQuote = async () => {
-    try {
-      const res = await fetch('https://api.quotable.io/random?tags=motivational|education|success');
-      const data = await res.json();
-      setMotivationalQuote({
-        text: data.content,
-        author: data.author
-      });
-    } catch {
-      // Graceful fallback – always shows something beautiful
-      setMotivationalQuote({
-        text: "The only way to do great work is to love what you do.",
-        author: "Steve Jobs"
-      });
-    }
-  };
-
   const deleteCard = async (e, id) => {
     e.stopPropagation();
-    if (!window.confirm("Remove this card from your vault?")) return;
+    const ok = await confirm({ title: 'Remove card?', message: 'This permanently removes the card from your vault.', confirmText: 'Remove', tone: 'danger' });
+    if (!ok) return;
     setDeletingId(id);
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/vault/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      setCards(cards.filter(card => card.id !== id));
+      await api.del(ENDPOINTS.VAULT_CARD(id));
+      setCards(cards.filter((card) => card.id !== id));
       if (expandedCard?.id === id) setExpandedCard(null);
+      toast.success('Card removed from vault');
     } catch {
-      alert("Delete failed");
+      toast.error('Delete failed');
     } finally {
       setDeletingId(null);
     }
   };
 
-  // ─────────────────────────────────────────────────────────────
-  // Smart local analyzer – extracts keywords from ALL questions
-  // ─────────────────────────────────────────────────────────────
+  // Local keyword analyzer → tag cloud
   const getTagCloud = () => {
     if (!cards.length) return [];
-    const text = cards.map(c => c.question.toLowerCase()).join(' ');
-    const words = text.split(/\s+/).filter(w => w.length > 3 && !['the','and','for','you','this','that','with','from'].includes(w));
-    
+    const text = cards.map((c) => c.question.toLowerCase()).join(' ');
+    const words = text.split(/\s+/).filter((w) => w.length > 3 && !['the', 'and', 'for', 'you', 'this', 'that', 'with', 'from'].includes(w));
     const freq = {};
-    words.forEach(w => { freq[w] = (freq[w] || 0) + 1; });
-    
-    return Object.entries(freq)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 12)
-      .map(([word, count]) => ({ word, size: Math.max(14, 14 + count * 6) }));
+    words.forEach((w) => { freq[w] = (freq[w] || 0) + 1; });
+    return Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([word, count]) => ({ word, size: Math.max(14, 14 + count * 6) }));
   };
 
-  // ─────────────────────────────────────────────────────────────
-  // Filtered + Sorted cards (live search + sort)
-  // ─────────────────────────────────────────────────────────────
+  const decks = [...new Set(cards.map((c) => c.deck).filter(Boolean))];
+
   const filteredCards = cards
-    .filter(card =>
-      card.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      card.answer.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    .filter((card) =>
+      (deckFilter === '__all__' || card.deck === deckFilter) &&
+      (card.question.toLowerCase().includes(searchTerm.toLowerCase()) || card.answer.toLowerCase().includes(searchTerm.toLowerCase())))
     .sort((a, b) => {
       if (sortBy === 'newest') return new Date(b.created_at) - new Date(a.created_at);
       if (sortBy === 'oldest') return new Date(a.created_at) - new Date(b.created_at);
@@ -258,351 +110,278 @@ export default function Vault() {
       return 0;
     });
 
-  // ─────────────────────────────────────────────────────────────
-  // Export functions (kept from before)
-  // ─────────────────────────────────────────────────────────────
   const exportToCSV = () => {
-    if (!cards.length) return alert("Vault is empty.");
+    if (!cards.length) return toast.error('Vault is empty.');
     const headers = ['Question', 'Answer', 'Saved Date'];
-    const rows = cards.map(card => [
+    const rows = cards.map((card) => [
       `"${card.question.replace(/"/g, '""')}"`,
       `"${card.answer.replace(/"/g, '""')}"`,
-      new Date(card.created_at).toLocaleDateString('en-IN')
+      new Date(card.created_at).toLocaleDateString('en-IN'),
     ]);
-    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+    const csv = [headers, ...rows].map((r) => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `StudyAI-Vault-${new Date().toISOString().slice(0,10)}.csv`;
+    link.download = `StudyAI-Vault-${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
   };
 
   const exportToPDF = () => {
-    if (!cards.length) return alert("Vault is empty.");
-    const content = cards.map(card => `
+    if (!cards.length) return toast.error('Vault is empty.');
+    const content = cards.map((card) => `
       <div style="border:1px solid #e2e8f0; padding:20px; margin-bottom:25px; border-radius:12px;">
         <h3 style="color:#1e40af;">${card.question}</h3>
         <p style="color:#334155;">${card.answer}</p>
         <small>Saved: ${new Date(card.created_at).toLocaleDateString('en-IN')}</small>
-      </div>
-    `).join('');
+      </div>`).join('');
     const win = window.open('', '_blank');
-    win.document.write(`
-      <html><head><title>StudyAI Vault</title>
-      <style>body{font-family:Arial,sans-serif;padding:40px;line-height:1.6;}</style>
-      </head><body><h1 style="text-align:center;color:#1e40af;">Your Study Vault</h1><p style="text-align:center;">Exported ${new Date().toLocaleString('en-IN')}</p>${content}</body></html>
-    `);
+    win.document.write(`<html><head><title>StudyAI Vault</title><style>body{font-family:Arial,sans-serif;padding:40px;line-height:1.6;}</style></head><body><h1 style="text-align:center;color:#1e40af;">Your Study Vault</h1><p style="text-align:center;">Exported ${new Date().toLocaleString('en-IN')}</p>${content}</body></html>`);
     win.document.close();
     setTimeout(() => { win.print(); win.close(); }, 500);
   };
 
-  // ─────────────────────────────────────────────────────────────
-  // Start interactive flashcard practice (3D flip)
-  // ─────────────────────────────────────────────────────────────
+  // Anki-friendly export: tab-separated Front<TAB>Back (Anki's default import format).
+  const exportToAnki = () => {
+    if (!cards.length) return toast.error('Vault is empty.');
+    const clean = (s) => (s || '').replace(/\t/g, ' ').replace(/\r?\n/g, '<br>');
+    const tsv = cards.map((c) => `${clean(c.question)}\t${clean(c.answer)}`).join('\n');
+    const blob = new Blob([tsv], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `StudyAI-Anki-${new Date().toISOString().slice(0, 10)}.txt`;
+    link.click();
+  };
+
+  // Assign / clear a card's deck label.
+  const setCardDeck = async (id, value) => {
+    try {
+      const res = await api.patch(ENDPOINTS.VAULT_CARD(id), { deck: value });
+      setCards((prev) => prev.map((c) => (c.id === id ? { ...c, deck: res.deck } : c)));
+      setExpandedCard((c) => (c && c.id === id ? { ...c, deck: res.deck } : c));
+      toast.success(res.deck ? `Moved to “${res.deck}”` : 'Removed from deck');
+    } catch {
+      toast.error('Could not update deck');
+    }
+  };
+
   const startPractice = () => {
-    if (!filteredCards.length) return alert("No cards to practice yet.");
-    setPracticeCards([...filteredCards]); // shuffle copy
+    if (!filteredCards.length) return toast.error('No cards to practice yet.');
+    setPracticeCards([...filteredCards]);
     setPracticeIndex(0);
     setIsFlipped(false);
   };
-
   const nextPractice = () => {
     if (practiceIndex < practiceCards.length - 1) {
       setPracticeIndex(practiceIndex + 1);
       setIsFlipped(false);
     } else {
-      setPracticeCards([]); // end session
+      setPracticeCards([]);
     }
   };
-
   const toggleFlip = () => setIsFlipped(!isFlipped);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent animate-spin rounded-full mx-auto mb-6"></div>
-          <p className="text-slate-500">Unlocking your vault...</p>
+      <div style={{ minHeight: '100vh', background: 'var(--grad-bg)', display: 'grid', placeItems: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <Spinner size={40} color="var(--accent-indigo)" style={{ margin: '0 auto 16px' }} />
+          <p style={{ color: 'var(--text-secondary)' }}>Unlocking your vault…</p>
         </div>
       </div>
     );
   }
 
+  const avgWords = Math.round(cards.reduce((acc, c) => acc + c.answer.split(' ').length, 0) / (cards.length || 1));
+
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-7xl mx-auto px-6 py-12">
-
-        {/* HEADER + CONTROLS */}
-        <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-12">
+    <div style={{ minHeight: '100vh', background: 'var(--grad-bg)', color: 'var(--text-primary)', fontFamily: 'var(--font-sans)' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--space-12) var(--space-6)' }}>
+        {/* Header + controls */}
+        <header style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: 'var(--space-5)', marginBottom: 'var(--space-10)' }}>
           <div>
-            <h1 className="text-4xl font-extrabold tracking-[-1px] text-slate-900">Your Study Vault</h1>
-            <p className="text-slate-600 mt-1">{cards.length} saved Q&amp;A cards • Your private knowledge base</p>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-3xl)', fontWeight: 'var(--weight-black)', letterSpacing: '-1px', margin: 0 }}>Your Study Vault</h1>
+            <p style={{ color: 'var(--text-secondary)', margin: '6px 0 0' }}>{cards.length} saved Q&amp;A cards · your private knowledge base</p>
           </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Search */}
-            <div className="relative flex-1 min-w-[240px]">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)', alignItems: 'center' }}>
+            <div style={{ position: 'relative', minWidth: 220, flex: 1 }}>
               <input
                 type="text"
-                placeholder="Search questions or answers..."
+                aria-label="Search saved cards"
+                placeholder="Search questions or answers…"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-6 py-3 bg-white border border-slate-200 rounded-3xl text-sm focus:outline-none focus:border-blue-400 shadow-sm"
+                style={{ ...controlStyle, width: '100%', paddingLeft: 42 }}
               />
-              <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">🔎</span>
+              <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }}><Icon3D code="🔎" size={16} /></span>
             </div>
-
-            {/* Sort */}
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="bg-white border border-slate-200 rounded-3xl px-5 py-3 text-sm focus:outline-none shadow-sm"
-            >
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={{ ...controlStyle, cursor: 'pointer' }}>
               <option value="newest">Newest first</option>
               <option value="oldest">Oldest first</option>
               <option value="az">A–Z</option>
             </select>
-
-            {/* Practice Button – OUT-OF-BOX interactive feature */}
-            <button
-              onClick={startPractice}
-              className="px-7 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-3xl font-semibold shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center gap-2"
-            >
-              <span>🧠 Practice Mode</span>
-              <span className="text-xl">→</span>
-            </button>
-
-            {/* Exports */}
-            <button onClick={exportToCSV} className="px-6 py-3 bg-white border border-slate-300 text-slate-700 rounded-3xl font-medium hover:bg-slate-50 flex items-center gap-2">
-              📥 CSV
-            </button>
-            <button onClick={exportToPDF} className="px-6 py-3 bg-blue-600 text-white rounded-3xl font-medium hover:bg-blue-700 flex items-center gap-2">
-              📄 PDF
-            </button>
+            {decks.length > 0 && (
+              <select value={deckFilter} onChange={(e) => setDeckFilter(e.target.value)} style={{ ...controlStyle, cursor: 'pointer' }}>
+                <option value="__all__">All decks</option>
+                {decks.map((d) => <option key={d} value={d}>{d}</option>)}
+              </select>
+            )}
+            <button onClick={startPractice} style={ctaPrimary}><Icon3D code="🧠" size={18} /> Practice Mode →</button>
+            <button onClick={exportToCSV} style={ctaGhost}><Icon3D code="📥" size={18} /> CSV</button>
+            <button onClick={exportToPDF} style={ctaGhost}><Icon3D code="📄" size={18} /> PDF</button>
+            <button onClick={exportToAnki} style={ctaGhost}><Icon3D code="🃏" size={18} /> Anki</button>
           </div>
         </header>
 
-        {/* VAULT ANALYZER – fresh, interactive, visual */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold text-slate-800">Smart Vault Analyzer</h2>
+        {/* Smart analyzer */}
+        <GlassCard style={{ marginBottom: 'var(--space-12)' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-6)' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-2xl)', margin: 0, color: 'var(--text-primary)' }}>Smart Vault Analyzer</h2>
             {motivationalQuote && (
-              <div className="max-w-xs text-right text-sm italic text-slate-600 border-l-2 border-blue-200 pl-4">
-                “{motivationalQuote.text}”<br />
-                <span className="text-xs text-slate-400 mt-1 block">— {motivationalQuote.author}</span>
+              <div style={{ maxWidth: 320, textAlign: 'right', fontSize: 'var(--text-sm)', fontStyle: 'italic', color: 'var(--text-secondary)', borderLeft: '2px solid rgba(var(--accent-rgb),0.4)', paddingLeft: 'var(--space-4)' }}>
+                “{motivationalQuote.text}”
+                <span style={{ display: 'block', fontStyle: 'normal', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 4 }}>— {motivationalQuote.author}</span>
               </div>
             )}
           </div>
 
-          {/* Tag Cloud – truly visual & interactive */}
-          <div className="mb-10">
-            <h3 className="text-sm uppercase font-medium text-slate-400 mb-4 tracking-widest">Top Topics in Your Vault</h3>
-            <div className="flex flex-wrap gap-3 justify-center">
+          {/* Tag cloud */}
+          <div style={{ marginBottom: 'var(--space-10)' }}>
+            <h3 style={{ fontSize: 'var(--text-xs)', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--text-muted)', marginBottom: 'var(--space-4)', fontWeight: 700 }}>Top topics in your vault</h3>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)', justifyContent: 'center' }}>
               {getTagCloud().map((tag, i) => (
-                <span
-                  key={i}
-                  className="inline-block px-5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-3xl text-sm font-medium cursor-pointer transition-all hover:scale-110"
-                  style={{ fontSize: `${tag.size}px` }}
-                >
+                <span key={i} style={{ padding: '6px 18px', background: 'rgba(var(--accent-rgb),0.15)', border: '1px solid rgba(var(--accent-rgb),0.3)', color: 'var(--accent-light)', borderRadius: 'var(--radius-full)', fontWeight: 600, fontSize: `${tag.size}px`, lineHeight: 1.2 }}>
                   {tag.word}
                 </span>
               ))}
+              {!getTagCloud().length && <span style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>Save some cards to see your topics.</span>}
             </div>
           </div>
 
-          {/* Quick Insights */}
-          <div className="grid grid-cols-3 gap-6 text-center">
-            <div className="bg-slate-50 rounded-2xl p-6">
-              <div className="text-4xl font-extrabold text-blue-600">{cards.length}</div>
-              <p className="text-slate-600 text-sm mt-1">Total Cards</p>
-            </div>
-            <div className="bg-slate-50 rounded-2xl p-6">
-              <div className="text-4xl font-extrabold text-emerald-600">
-                {Math.round(cards.reduce((acc, c) => acc + c.answer.split(' ').length, 0) / (cards.length || 1))}
-              </div>
-              <p className="text-slate-600 text-sm mt-1">Avg Words per Answer</p>
-            </div>
-            <div className="bg-slate-50 rounded-2xl p-6">
-              <div className="text-4xl font-extrabold text-amber-600">{filteredCards.length}</div>
-              <p className="text-slate-600 text-sm mt-1">Matches Current Filter</p>
-            </div>
-          </div>
-        </div>
-
-        {/* CARD GRID */}
-        {filteredCards.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200">
-            <div className="text-6xl mb-4">🔎</div>
-            <p className="font-medium text-slate-400">No matching cards found</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCards.map((card) => (
-              <div
-                key={card.id}
-                onClick={() => setExpandedCard(card)}
-                className="group bg-white border border-slate-200 rounded-3xl p-8 shadow-sm hover:shadow-2xl hover:-translate-y-2 hover:border-blue-300 transition-all duration-500 flex flex-col cursor-pointer"
-              >
-                <div className="flex justify-between mb-6">
-                  <span className="px-4 py-1 text-xs font-bold bg-blue-100 text-blue-600 rounded-3xl">Q&amp;A</span>
-                  <button
-                    onClick={(e) => deleteCard(e, card.id)}
-                    disabled={deletingId === card.id}
-                    className="text-slate-400 hover:text-red-500 transition-colors"
-                  >
-                    🗑
-                  </button>
-                </div>
-                <h3 className="font-semibold text-slate-800 line-clamp-3 text-lg leading-tight flex-1">
-                  {card.question}
-                </h3>
-                <div className="mt-auto pt-6 text-blue-600 text-sm font-medium flex items-center justify-between">
-                  <span>View Answer</span>
-                  <span className="group-hover:translate-x-1 transition">→</span>
-                </div>
+          {/* Quick insights */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 'var(--space-5)', textAlign: 'center' }}>
+            {[
+              [cards.length, 'Total cards'],
+              [avgWords, 'Avg words / answer'],
+              [filteredCards.length, 'Matches filter'],
+            ].map(([val, label], i) => (
+              <div key={i} style={{ background: 'var(--glass-bg-light)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-5)' }}>
+                <div className="ds-holo-text" style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-3xl)', fontWeight: 'var(--weight-black)' }}>{val}</div>
+                <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', margin: '4px 0 0' }}>{label}</p>
               </div>
             ))}
           </div>
-        )}
+        </GlassCard>
 
+        {/* Card grid */}
+        {filteredCards.length === 0 ? (
+          <GlassCard>
+            <EmptyState icon={<Icon3D code="🔎" size={30} />} title="No matching cards" description="Try a different search, or generate and save new questions." />
+          </GlassCard>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 'var(--space-6)' }}>
+            {filteredCards.map((card) => (
+              <GlassCard
+                key={card.id}
+                onClick={() => setExpandedCard(card)}
+                style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <Badge tone="indigo">Q&amp;A</Badge>
+                    {card.deck && <Badge tone="default">▦ {card.deck}</Badge>}
+                  </div>
+                  <button
+                    onClick={(e) => deleteCard(e, card.id)}
+                    disabled={deletingId === card.id}
+                    title="Delete"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                  >
+                    <Icon3D code="🗑" size={16} />
+                  </button>
+                </div>
+                <h3 style={{ fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)', fontSize: 'var(--text-lg)', lineHeight: 1.35, margin: 0, flex: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  {card.question}
+                </h3>
+                <div style={{ marginTop: 'var(--space-5)', paddingTop: 'var(--space-4)', borderTop: '1px solid var(--glass-border)', color: 'var(--accent-light)', fontSize: 'var(--text-sm)', fontWeight: 600, display: 'flex', justifyContent: 'space-between' }}>
+                  <span>View answer</span><span>→</span>
+                </div>
+              </GlassCard>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* DETAIL MODAL – kept but polished */}
-      {expandedCard && (
-        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur flex items-center justify-center p-4">
-          <div className="bg-white max-w-2xl w-full rounded-3xl overflow-hidden shadow-2xl">
-            <div className="px-8 py-5 border-b flex justify-between items-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-              <h2 className="font-bold">Full Card</h2>
-              <button onClick={() => setExpandedCard(null)} className="text-3xl leading-none">×</button>
+      {/* Detail modal */}
+      <Modal open={!!expandedCard} onClose={() => setExpandedCard(null)} title="Saved card" maxWidth={620}>
+        {expandedCard && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+            <div>
+              <div style={{ textTransform: 'uppercase', fontSize: 'var(--text-xs)', fontWeight: 800, color: 'var(--accent-light)', marginBottom: 6 }}>Question</div>
+              <p style={{ fontSize: 'var(--text-xl)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)', margin: 0 }}>{expandedCard.question}</p>
             </div>
-            <div className="p-8 space-y-8 max-h-[70vh] overflow-auto">
-              <div>
-                <div className="uppercase text-xs font-bold text-blue-500 mb-2">Question</div>
-                <p className="text-2xl font-semibold text-slate-800">{expandedCard.question}</p>
-              </div>
-              <div className="bg-slate-50 p-8 rounded-3xl">
-                <div className="uppercase text-xs font-bold text-emerald-500 mb-2">Answer</div>
-                <p className="text-lg leading-relaxed text-slate-700 whitespace-pre-wrap">{expandedCard.answer}</p>
+            <div style={{ background: 'var(--glass-bg-light)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-5)' }}>
+              <div style={{ textTransform: 'uppercase', fontSize: 'var(--text-xs)', fontWeight: 800, color: 'var(--accent-emerald)', marginBottom: 6 }}>Answer</div>
+              <p style={{ fontSize: 'var(--text-base)', lineHeight: 'var(--leading-relaxed)', color: 'var(--text-secondary)', margin: 0, whiteSpace: 'pre-wrap' }}>{expandedCard.answer}</p>
+            </div>
+            <div>
+              <div style={{ textTransform: 'uppercase', fontSize: 'var(--text-xs)', fontWeight: 800, color: 'var(--text-muted)', marginBottom: 6 }}>Deck</div>
+              <input
+                key={expandedCard.id}
+                defaultValue={expandedCard.deck || ''}
+                placeholder="e.g. Biology — type a deck name"
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setCardDeck(expandedCard.id, e.target.value); } }}
+                onBlur={(e) => { if ((e.target.value.trim() || null) !== (expandedCard.deck || null)) setCardDeck(expandedCard.id, e.target.value); }}
+                style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-md)', background: 'var(--glass-bg)', border: '1.5px solid var(--glass-border)', color: 'var(--text-primary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--text-sm)', outline: 'none', boxSizing: 'border-box' }}
+              />
+              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', margin: '6px 0 0' }}>Press Enter or click away to save · clear to remove from deck</p>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Interactive flashcard practice */}
+      {practiceCards.length > 0 && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 'var(--z-modal)', background: 'rgba(6,9,18,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-6)' }}>
+          <div style={{ width: '100%', maxWidth: 560 }}>
+            <div style={{ textAlign: 'center', color: '#fff', marginBottom: 'var(--space-6)' }}>
+              <span style={{ fontSize: 'var(--text-xs)', textTransform: 'uppercase', letterSpacing: '0.15em', background: 'rgba(255,255,255,0.1)', padding: '8px 16px', borderRadius: 'var(--radius-full)' }}>Practice session</span>
+              <p style={{ marginTop: 'var(--space-3)', fontSize: 'var(--text-xl)', fontWeight: 300 }}>Card {practiceIndex + 1} of {practiceCards.length}</p>
+            </div>
+
+            <div onClick={toggleFlip} style={{ position: 'relative', width: '100%', height: 440, cursor: 'pointer', perspective: '1200px' }}>
+              <div style={{ position: 'relative', width: '100%', height: '100%', transformStyle: 'preserve-3d', transition: 'transform 0.7s var(--ease-out)', transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
+                {/* Front */}
+                <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', background: 'linear-gradient(145deg, rgba(22,30,54,0.98) 0%, rgba(12,18,36,0.98) 100%)', border: '1.5px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', boxShadow: 'var(--shadow-lg)', display: 'flex', flexDirection: 'column', padding: 'var(--space-6)', textAlign: 'center' }}>
+                  <div style={{ textTransform: 'uppercase', color: 'var(--accent-light)', fontSize: 'var(--text-xs)', fontWeight: 800, letterSpacing: '0.15em', marginBottom: 'var(--space-4)' }}>Question</div>
+                  <div style={{ flex: 1, overflowY: 'auto' }}>
+                    <p style={{ fontSize: 'var(--text-xl)', lineHeight: 1.4, fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)', wordBreak: 'break-word' }}>{practiceCards[practiceIndex].question}</p>
+                  </div>
+                  <div style={{ marginTop: 'var(--space-4)', fontSize: 'var(--text-xs)', color: '#94a3b8' }}>Tap card to flip →</div>
+                </div>
+                {/* Back */}
+                <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)', background: 'linear-gradient(135deg, rgba(16,185,129,0.18), rgba(12,18,36,0.96))', border: '2px solid rgba(52,211,153,0.4)', borderRadius: 'var(--radius-xl)', boxShadow: 'var(--shadow-lg)', display: 'flex', flexDirection: 'column', padding: 'var(--space-6)', textAlign: 'center' }}>
+                  <div style={{ textTransform: 'uppercase', color: '#34d399', fontSize: 'var(--text-xs)', fontWeight: 800, letterSpacing: '0.15em', marginBottom: 'var(--space-4)' }}>Answer</div>
+                  <div style={{ flex: 1, overflowY: 'auto' }}>
+                    <p style={{ fontSize: 'var(--text-lg)', lineHeight: 1.7, color: 'var(--text-primary)', wordBreak: 'break-word' }}>{practiceCards[practiceIndex].answer}</p>
+                  </div>
+                  <div style={{ marginTop: 'var(--space-4)', fontSize: 'var(--text-xs)', color: '#94a3b8' }}>Tap card to flip back</div>
+                </div>
               </div>
             </div>
-            <div className="p-6 border-t flex justify-end">
-              <button onClick={() => setExpandedCard(null)} className="px-8 py-3 bg-slate-100 text-slate-700 rounded-3xl font-medium">Close</button>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'var(--space-8)' }}>
+              <button onClick={() => { setPracticeCards([]); setIsFlipped(false); }} style={{ padding: '14px 28px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,255,255,0.3)', background: 'transparent', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>End practice</button>
+              <button onClick={nextPractice} style={{ padding: '14px 28px', borderRadius: 'var(--radius-md)', border: 'none', background: 'var(--grad-primary)', color: '#fff', cursor: 'pointer', fontWeight: 'var(--weight-bold)', boxShadow: 'var(--shadow-glow)' }}>Next card →</button>
             </div>
           </div>
         </div>
       )}
 
-
-      
-
-{/* INTERACTIVE FLASHCARD PRACTICE MODE */}
-{practiceCards.length > 0 && (
-  <div className="fixed inset-0 z-[999] bg-slate-950/95 flex items-center justify-center p-6">
-    <div className="w-full max-w-xl">
-      <div className="text-center text-white mb-6">
-        <span className="text-xs uppercase tracking-widest bg-white/10 px-4 py-2 rounded-3xl">
-          Practice Session
-        </span>
-        <p className="mt-3 text-2xl font-light">
-          Card {practiceIndex + 1} of {practiceCards.length}
-        </p>
-      </div>
-
-      {/* CARD */}
-      <div
-        onClick={toggleFlip}
-        className="relative w-full h-[460px] cursor-pointer"
-        style={{ perspective: '1200px' }}
-      >
-        <div
-          className="relative w-full h-full transition-transform duration-700"
-          style={{
-            transformStyle: 'preserve-3d',
-            transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
-          }}
-        >
-          {/* FRONT – Question */}
-          <div
-            className="absolute inset-0 bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden"
-            style={{ backfaceVisibility: 'hidden' }}
-          >
-            <div className="p-6 flex flex-col h-full text-center">
-              <div className="uppercase text-blue-600 text-xs font-bold mb-4 tracking-widest">
-                QUESTION
-              </div>
-
-              {/* SCROLLABLE CONTENT */}
-              <div className="flex-1 overflow-y-auto pr-2">
-                <p className="text-2xl leading-snug font-semibold text-slate-800 break-words">
-                  {practiceCards[practiceIndex].question}
-                </p>
-              </div>
-
-              <div className="mt-4 text-xs text-slate-400">
-                Tap card to flip →
-              </div>
-            </div>
-          </div>
-
-          {/* BACK – Answer */}
-          <div
-            className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-white rounded-3xl shadow-2xl flex flex-col border-2 border-emerald-200 overflow-hidden"
-            style={{
-              backfaceVisibility: 'hidden',
-              transform: 'rotateY(180deg)'
-            }}
-          >
-            <div className="p-6 flex flex-col h-full text-center">
-              <div className="uppercase text-emerald-600 text-xs font-bold mb-4 tracking-widest">
-                ANSWER
-              </div>
-
-              {/* SCROLLABLE CONTENT */}
-              <div className="flex-1 overflow-y-auto pr-2">
-                <p className="text-xl leading-relaxed text-slate-700 break-words">
-                  {practiceCards[practiceIndex].answer}
-                </p>
-              </div>
-
-              <div className="mt-4 text-xs text-slate-400">
-                Tap card to flip back
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ACTIONS */}
-      <div className="flex justify-between text-white mt-8">
-        <button
-          onClick={() => {
-            setPracticeCards([]);
-            setIsFlipped(false);
-          }}
-          className="px-8 py-4 rounded-3xl border border-white/30 hover:bg-white/10"
-        >
-          End Practice
-        </button>
-
-        <button
-          onClick={nextPractice}
-          className="px-8 py-4 bg-white text-slate-900 rounded-3xl font-semibold flex items-center gap-2"
-        >
-          Next Card <span className="text-xl">→</span>
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-
-
-      <footer className="text-center text-slate-400 text-xs py-8">
-        © {new Date().getFullYear()} StudyAI • Your vault is 100% private
+      <footer style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 'var(--text-xs)', padding: 'var(--space-8)' }}>
+        © {new Date().getFullYear()} StudyAI · Your vault is 100% private
       </footer>
     </div>
   );
 }
-
-//copyrightable

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0f1e" />
+    <title>Offline — StudyAI</title>
+    <style>
+      html, body { margin: 0; height: 100%; }
+      body {
+        display: grid; place-items: center; text-align: center;
+        background: linear-gradient(160deg, #0a0f1e 0%, #0c1428 40%, #0f1729 100%);
+        color: #f1f5f9; font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        padding: 24px;
+      }
+      .card { max-width: 420px; }
+      .badge {
+        width: 64px; height: 64px; margin: 0 auto 20px; border-radius: 18px;
+        display: grid; place-items: center; font-size: 30px; font-weight: 800; color: #fff;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6 50%, #0ea5e9);
+        box-shadow: 0 8px 36px rgba(79, 70, 229, 0.45);
+      }
+      h1 { font-size: 1.4rem; margin: 0 0 8px; }
+      p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin: 0 0 20px; }
+      button {
+        padding: 12px 22px; border: none; border-radius: 12px; cursor: pointer;
+        font-weight: 700; color: #fff; font-size: 0.95rem;
+        background: linear-gradient(135deg, #4f46e5, #2563eb 50%, #0ea5e9);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="badge">S</div>
+      <h1>You're offline</h1>
+      <p>StudyAI needs an internet connection to generate quizzes and sync your vault. Please reconnect and try again.</p>
+      <button onclick="location.reload()">Retry</button>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,116 @@
+/* =============================================================================
+   StudyAI — Holographic Glass design tokens
+   Single source of truth for color, glass, gradients, type, spacing, motion, z.
+   Consumed across the app via var(--token).
+   ============================================================================= */
+
+:root {
+  /* ---- Base surfaces (dark) ---- */
+  --bg-900: #060912;
+  --bg-800: #0a0f1e;
+  --bg-700: #0f172a;
+  --bg-600: #16203a;
+
+  /* ---- Glass surfaces ---- */
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-bg-strong: rgba(255, 255, 255, 0.08);
+  --glass-bg-light: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-strong: rgba(255, 255, 255, 0.2);
+  --glass-blur: blur(20px) saturate(1.6);
+  --glass-blur-strong: blur(28px) saturate(1.8);
+
+  /* ---- Accent palette ---- */
+  --accent-indigo: #6366f1;
+  --accent-light: #a5b4fc; /* light accent for text/icons on dark — themed */
+  --accent-rgb: 99, 102, 241; /* primary accent as RGB triplet for rgba() tints — themed */
+  --accent-violet: #8b5cf6;
+  --accent-sky: #0ea5e9;
+  --accent-cyan: #22d3ee;
+  --accent-fuchsia: #d946ef;
+  --accent-emerald: #34d399; /* success */
+  --accent-amber: #fbbf24;   /* warning */
+  --accent-rose: #fb7185;    /* error */
+
+  /* ---- Text ---- */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: rgba(148, 163, 184, 0.78); /* bumped for WCAG contrast on dark */
+  --text-on-accent: #ffffff;
+
+  /* ---- Gradients ---- */
+  --grad-primary: linear-gradient(135deg, #4f46e5 0%, #2563eb 50%, #0ea5e9 100%);
+  --grad-holo: linear-gradient(135deg, #6366f1 0%, #8b5cf6 30%, #0ea5e9 60%, #d946ef 100%);
+  --grad-holo-soft: linear-gradient(135deg, rgba(99,102,241,0.18), rgba(139,92,246,0.12), rgba(14,165,233,0.14), rgba(217,70,239,0.12));
+  --grad-bg: radial-gradient(ellipse 80% 70% at 20% 10%, #1e3a8a22 0%, transparent 60%),
+             radial-gradient(ellipse 60% 80% at 80% 90%, #4f46e520 0%, transparent 60%),
+             radial-gradient(ellipse 50% 50% at 55% 40%, #0ea5e912 0%, transparent 55%),
+             linear-gradient(160deg, #0a0f1e 0%, #0c1428 40%, #0f1729 100%);
+
+  /* ---- Shadows / glow ---- */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 4px 24px rgba(79, 70, 229, 0.4);
+  --shadow-glow-strong: 0 8px 36px rgba(79, 70, 229, 0.55);
+
+  /* ---- Radii ---- */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  /* ---- Spacing scale (4px base) ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ---- Typography ---- */
+  --font-sans: 'DM Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-display: 'Syne', 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  /* Fluid type scale (clamp: min, preferred, max) */
+  --text-xs: clamp(0.7rem, 0.66rem + 0.2vw, 0.78rem);
+  --text-sm: clamp(0.8rem, 0.76rem + 0.2vw, 0.88rem);
+  --text-base: clamp(0.9rem, 0.86rem + 0.25vw, 1rem);
+  --text-lg: clamp(1.05rem, 1rem + 0.3vw, 1.2rem);
+  --text-xl: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  --text-2xl: clamp(1.5rem, 1.3rem + 1vw, 2rem);
+  --text-3xl: clamp(1.9rem, 1.5rem + 1.8vw, 2.75rem);
+  --text-4xl: clamp(2.4rem, 1.8rem + 3vw, 3.75rem);
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-black: 800;
+
+  --leading-tight: 1.15;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  /* ---- Motion ---- */
+  --dur-fast: 150ms;
+  --dur: 250ms;
+  --dur-slow: 400ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ---- Z-index scale ---- */
+  --z-dropdown: 200;
+  --z-nav: 9999;
+  --z-modal: 10000;
+  --z-toast: 10001;
+
+  /* ---- Focus ring (accessibility) ---- */
+  --focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.45);
+}

@@ -1,170 +1,88 @@
-// // import React from 'react';
-// // import { Link } from 'react-router-dom';
-
-// // export default function HomePage() {
-// //   return (
-// //     <div className="min-h-screen bg-white">
-// //       {/* Hero Section */}
-// //       <section className="pt-20 pb-16 px-6 text-center bg-gradient-to-b from-blue-50 to-white">
-// //         <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight">
-// //           Turn your Study Material into <br />
-// //           <span className="text-blue-600">Smart Quizzes</span>
-// //         </h1>
-// //         <p className="max-w-2xl mx-auto text-lg text-slate-600 mb-10 leading-relaxed">
-// //           Upload photos of your textbooks or paste your lecture notes. Our AI extracts the core concepts 
-// //           and generates high-quality questions and answers instantly.
-// //         </p>
-// //         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-// //           <Link to="/imageInput" className="px-8 py-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
-// //             Try Image OCR
-// //           </Link>
-// //           <Link to="/valueInput" className="px-8 py-4 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all">
-// //             Topic Search
-// //           </Link>
-// //         </div>
-// //       </section>
-
-// //       {/* How it Works Section */}
-// //       <section className="py-20 px-6 max-w-7xl mx-auto">
-// //         <h2 className="text-3xl font-bold text-center text-slate-800 mb-12">How it Works</h2>
-        
-        
-
-// //         <div className="grid md:grid-cols-3 gap-12">
-// //           <div className="text-center">
-// //             <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">1</div>
-// //             <h3 className="text-xl font-bold mb-3 text-slate-800">Capture</h3>
-// //             <p className="text-slate-600">Snap a photo of your book or notes. We support JPG, PNG, and WebP formats.</p>
-// //           </div>
-          
-// //           <div className="text-center">
-// //             <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">2</div>
-// //             <h3 className="text-xl font-bold mb-3 text-slate-800">Extract</h3>
-// //             <p className="text-slate-600">Using Tesseract.js, we read the text locally in your browser for 100% privacy.</p>
-// //           </div>
-          
-// //           <div className="text-center">
-// //             <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">3</div>
-// //             <h3 className="text-xl font-bold mb-3 text-slate-800">Generate</h3>
-// //             <p className="text-slate-600">Our Gemini-powered AI analyzes the context to create 5 relevant Q&A pairs.</p>
-// //           </div>
-// //         </div>
-// //       </section>
-
-// //       {/* Features Grid */}
-// //       <section className="bg-slate-900 py-20 px-6 text-white">
-// //         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-// //           <div>
-// //             <h2 className="text-4xl font-bold mb-6">Built for Modern Students</h2>
-// //             <ul className="space-y-4">
-// //               <li className="flex items-start gap-3">
-// //                 <span className="text-green-400 text-xl">✓</span>
-// //                 <p><span className="font-bold">Privacy First:</span> Text extraction happens on your device, not our servers.</p>
-// //               </li>
-// //               <li className="flex items-start gap-3">
-// //                 <span className="text-green-400 text-xl">✓</span>
-// //                 <p><span className="font-bold">AI Accuracy:</span> Powered by the latest Gemini 2.5 Flash model.</p>
-// //               </li>
-// //               <li className="flex items-start gap-3">
-// //                 <span className="text-green-400 text-xl">✓</span>
-// //                 <p><span className="font-bold">Lightning Fast:</span> Get your study guide in under 10 seconds.</p>
-// //               </li>
-// //             </ul>
-// //           </div>
-// //           <div className="bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl">
-// //             <pre className="text-blue-400 text-sm overflow-hidden">
-// //               <code>
-// //                 {`// Your AI Prompt in Action
-// // const prompt = "Generate a JSON array..."
-// // const result = await model.generate(pageText);
-// // return result.response.json();`}
-// //               </code>
-// //             </pre>
-// //           </div>
-// //         </div>
-// //       </section>
-
-// //       {/* Footer */}
-// //       <footer className="py-12 border-t border-slate-100 text-center text-slate-400 text-sm">
-// //         © 2026 StudyAI Project • Built with React, Tesseract.js, and Gemini
-// //       </footer>
-// //     </div>
-// //   );
-// // }
-
-
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { api } from '../lib/api';
+import { getToken, getUser } from '../lib/auth';
+import { ENDPOINTS, ROUTES } from '../lib/constants';
+import { useToast } from '../context/ToastContext';
+import GlassCard from '../components/ui/GlassCard';
+import Skeleton from '../components/ui/Skeleton';
+import EmptyState from '../components/ui/EmptyState';
+import Badge from '../components/ui/Badge';
+import Icon3D from '../components/ui/Icon3D';
+import Footer from '../components/Footer';
+import InteractiveBackdrop from '../components/InteractiveBackdrop';
+
+// ── Shared inline style helpers (token-driven) ──────────────────────────────
+const ctaBase = {
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+  padding: '14px 26px', borderRadius: 'var(--radius-md)', fontWeight: 'var(--weight-bold)',
+  fontSize: 'var(--text-base)', textDecoration: 'none', cursor: 'pointer',
+  transition: 'transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast)',
+};
+const ctaPrimary = { ...ctaBase, background: 'var(--grad-primary)', color: '#fff', boxShadow: 'var(--shadow-glow)' };
+const ctaGhost = { ...ctaBase, background: 'var(--glass-bg)', color: 'var(--text-primary)', border: '1.5px solid var(--glass-border)' };
+
+const sectionStyle = { maxWidth: 1100, margin: '0 auto', padding: 'var(--space-16) var(--space-6)' };
+const h2Style = { fontFamily: 'var(--font-display)', fontSize: 'var(--text-3xl)', fontWeight: 'var(--weight-black)', margin: 0, color: 'var(--text-primary)' };
 
 export default function HomePage() {
-  // Auth state synced with your LoginPage
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-  const [vaultCards, setVaultCards] = useState([]);          // Preview (max 3)
-  const [fullVaultCards, setFullVaultCards] = useState([]);  // Full data for analysis + export
+  const [vaultCards, setVaultCards] = useState([]); // preview (max 3)
+  const [fullVaultCards, setFullVaultCards] = useState([]); // full data for analysis + export
   const [vaultLoading, setVaultLoading] = useState(false);
+  const [stats, setStats] = useState(null);
+  const toast = useToast();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+    const token = getToken();
+    const parsedUser = getUser();
+    if (!token || !parsedUser) return;
 
-    if (token && storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setIsLoggedIn(true);
-      setUser(parsedUser);
+    setIsLoggedIn(true);
+    setUser(parsedUser);
 
-      setVaultLoading(true);
-      fetch(`${import.meta.env.VITE_API_URL}/vault/${parsedUser.id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+    // Study stats (streak / due count) for the dashboard — non-blocking.
+    api.get(ENDPOINTS.STATS).then(setStats).catch(() => {});
+
+    setVaultLoading(true);
+    api
+      .get(ENDPOINTS.VAULT(parsedUser.id))
+      .then((data) => {
+        setFullVaultCards(data);
+        setVaultCards(data.slice(0, 3));
       })
-        .then(res => {
-          if (!res.ok) throw new Error('Failed to fetch vault');
-          return res.json();
-        })
-        .then(data => {
-          setFullVaultCards(data);                    // Full data for graphs + export
-          setVaultCards(data.slice(0, 3));            // Preview cards only
-        })
-        .catch(() => {
-          setFullVaultCards([]);
-          setVaultCards([]);
-        })
-        .finally(() => setVaultLoading(false));
-    }
+      .catch(() => {
+        setFullVaultCards([]);
+        setVaultCards([]);
+      })
+      .finally(() => setVaultLoading(false));
   }, []);
 
-  // ─────────────────────────────────────────────────────────────
-  // Export functions – fully working, end-to-end, no external libs
-  // ─────────────────────────────────────────────────────────────
+  // ── Export: CSV (no external libs) ──
   const exportToCSV = () => {
-    if (fullVaultCards.length === 0) return alert("Your vault is empty – nothing to export.");
-
+    if (fullVaultCards.length === 0) return toast.error('Your vault is empty — nothing to export.');
     const headers = ['Question', 'Answer', 'Saved Date'];
-    const rows = fullVaultCards.map(card => [
+    const rows = fullVaultCards.map((card) => [
       `"${card.question.replace(/"/g, '""')}"`,
       `"${card.answer.replace(/"/g, '""')}"`,
-      new Date(card.created_at).toLocaleDateString('en-IN')
+      new Date(card.created_at).toLocaleDateString('en-IN'),
     ]);
-
-    const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+    const csv = [headers, ...rows].map((r) => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `StudyAI-Vault-${new Date().toISOString().slice(0,10)}.csv`);
+    link.setAttribute('download', `StudyAI-Vault-${new Date().toISOString().slice(0, 10)}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
+  // ── Export: PDF via print window ──
   const exportToPDF = () => {
-    if (fullVaultCards.length === 0) return alert("Your vault is empty – nothing to export.");
-
+    if (fullVaultCards.length === 0) return toast.error('Your vault is empty — nothing to export.');
     const printContent = `
       <style>
         @page { margin: 1cm; }
@@ -174,24 +92,19 @@ export default function HomePage() {
       </style>
       <h1>StudyAI • Your Private Vault</h1>
       <p style="text-align:center; margin-bottom:30px;">Exported on ${new Date().toLocaleString('en-IN')}</p>
-      ${fullVaultCards.map(card => `
+      ${fullVaultCards
+        .map(
+          (card) => `
         <div class="card">
           <h3 style="margin:0 0 8px 0; color:#1e40af;">${card.question}</h3>
           <p style="margin:0; color:#334155;">${card.answer}</p>
-          <p style="font-size:12px; color:#64748b; margin-top:12px;">
-            Saved on ${new Date(card.created_at).toLocaleDateString('en-IN')}
-          </p>
-        </div>
-      `).join('')}
+          <p style="font-size:12px; color:#64748b; margin-top:12px;">Saved on ${new Date(card.created_at).toLocaleDateString('en-IN')}</p>
+        </div>`
+        )
+        .join('')}
     `;
-
     const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-      <html>
-        <head><title>StudyAI Vault Export</title></head>
-        <body>${printContent}</body>
-      </html>
-    `);
+    printWindow.document.write(`<html><head><title>StudyAI Vault Export</title></head><body>${printContent}</body></html>`);
     printWindow.document.close();
     printWindow.focus();
     setTimeout(() => {
@@ -200,255 +113,207 @@ export default function HomePage() {
     }, 300);
   };
 
-  // Simple truthful activity data for immersive graph (based ONLY on real vault data)
+  // Real cards-saved-per-week over the last 4 weeks (oldest → most recent),
+  // computed from each card's created_at timestamp.
   const getActivityBars = () => {
-    if (fullVaultCards.length === 0) return [0, 0, 0, 0];
-    const total = fullVaultCards.length;
-    // Distribute real total into 4 visual bars (truthful scale)
-    return [
-      Math.round(total * 0.25),
-      Math.round(total * 0.45),
-      Math.round(total * 0.75),
-      total
-    ];
+    const now = Date.now();
+    const WEEK = 7 * 24 * 60 * 60 * 1000;
+    const buckets = [0, 0, 0, 0]; // index 0 = 3–4 weeks ago … index 3 = this week
+    fullVaultCards.forEach((c) => {
+      const t = new Date(c.created_at).getTime();
+      if (Number.isNaN(t)) return;
+      const weeksAgo = Math.floor((now - t) / WEEK);
+      if (weeksAgo >= 0 && weeksAgo < 4) buckets[3 - weeksAgo] += 1;
+    });
+    return buckets;
   };
 
+  const thisMonthCount = fullVaultCards.filter((c) => {
+    const d = new Date(c.created_at);
+    const now = new Date();
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).length;
+
+  const bars = getActivityBars();
+  const maxBar = Math.max(...bars, 1);
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section – Premium 3D aesthetic preserved */}
-      <section className="pt-20 pb-16 px-6 text-center bg-gradient-to-b from-blue-50 to-white overflow-hidden">
-        <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 mb-6 tracking-[-2px] leading-none drop-shadow-sm">
-          Turn your Study Material into <br />
-          <span className="text-blue-600 bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">Smart Quizzes</span>
+    <div style={{ minHeight: '100vh', background: 'var(--grad-bg)', color: 'var(--text-primary)', fontFamily: 'var(--font-sans)', position: 'relative', overflowX: 'clip' }}>
+      <InteractiveBackdrop />
+      <div style={{ position: 'relative', zIndex: 1 }}>
+      {/* ── Hero ── */}
+      <section style={{ ...sectionStyle, textAlign: 'center', paddingTop: 'var(--space-16)' }}>
+        <Badge tone="indigo" style={{ marginBottom: 'var(--space-5)' }}>✦ AI-Powered · OCR + Gemini</Badge>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-4xl)', fontWeight: 'var(--weight-black)', letterSpacing: '-1.5px', lineHeight: 'var(--leading-tight)', margin: '0 0 var(--space-5)' }}>
+          Turn your study material into
+          <br />
+          <span className="ds-holo-text">smart quizzes</span>
         </h1>
-        <p className="max-w-2xl mx-auto text-lg text-slate-600 mb-10 leading-relaxed">
-          Upload photos of your textbooks or paste your lecture notes. Our AI extracts the core concepts 
-          and generates high-quality questions and answers instantly.
+        <p style={{ maxWidth: 640, margin: '0 auto var(--space-8)', color: 'var(--text-secondary)', fontSize: 'var(--text-lg)', lineHeight: 'var(--leading-relaxed)' }}>
+          Upload photos of your textbooks or paste your lecture notes. Our AI extracts the core concepts and
+          generates high-quality questions and answers instantly.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link 
-            to="/imageInput" 
-            className="group px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold text-lg shadow-2xl shadow-blue-300/50 hover:shadow-blue-500/40 hover:-translate-y-1 active:translate-y-0 active:scale-95 transition-all duration-300 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600"
-          >
-            Try Image OCR
-          </Link>
-          <Link 
-            to="/valueInput" 
-            className="group px-8 py-4 bg-white/90 backdrop-blur-md text-slate-700 border border-slate-200 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl hover:-translate-y-1 active:translate-y-0 active:scale-95 transition-all duration-300 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-slate-300"
-          >
-            Topic Search
-          </Link>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)', justifyContent: 'center' }}>
+          <Link to={ROUTES.IMAGE_INPUT} style={ctaPrimary}>Try Image OCR</Link>
+          <Link to={ROUTES.VALUE_INPUT} style={ctaGhost}>Topic Search</Link>
         </div>
       </section>
 
-      {/* How it Works – 3D cards preserved */}
-      <section className="py-20 px-6 max-w-7xl mx-auto">
-        <h2 className="text-3xl font-bold text-center text-slate-800 mb-12">How it Works</h2>
-        
-        <div className="grid md:grid-cols-3 gap-12">
-          <div className="text-center bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 ease-out group">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-bold shadow-inner ring-4 ring-blue-100/50 group-hover:ring-blue-200 transition-all">1</div>
-            <h3 className="text-xl font-bold mb-3 text-slate-800">Capture</h3>
-            <p className="text-slate-600">Snap a photo of your book or notes. We support JPG, PNG, and WebP formats.</p>
-          </div>
-          
-          <div className="text-center bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 ease-out group">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-bold shadow-inner ring-4 ring-blue-100/50 group-hover:ring-blue-200 transition-all">2</div>
-            <h3 className="text-xl font-bold mb-3 text-slate-800">Extract</h3>
-            <p className="text-slate-600">Using Tesseract.js, we read the text locally in your browser for 100% privacy.</p>
-          </div>
-          
-          <div className="text-center bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 ease-out group">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-bold shadow-inner ring-4 ring-blue-100/50 group-hover:ring-blue-200 transition-all">3</div>
-            <h3 className="text-xl font-bold mb-3 text-slate-800">Generate</h3>
-            <p className="text-slate-600">Our Gemini-powered AI analyzes the context to create 5 relevant Q&amp;A pairs.</p>
-          </div>
+      {/* ── How it works ── */}
+      <section style={sectionStyle}>
+        <h2 style={{ ...h2Style, textAlign: 'center', marginBottom: 'var(--space-10)' }}>How it works</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 'var(--space-6)' }}>
+          {[
+            { n: 1, t: 'Capture', d: 'Snap a photo of your book or notes. JPG, PNG, and WebP supported.' },
+            { n: 2, t: 'Extract', d: 'Tesseract.js reads the text locally in your browser for 100% privacy.' },
+            { n: 3, t: 'Generate', d: 'Gemini analyzes the context to create relevant Q&A pairs.' },
+          ].map((s) => (
+            <GlassCard key={s.n} style={{ textAlign: 'center' }}>
+              <div style={{ width: 56, height: 56, margin: '0 auto var(--space-4)', borderRadius: 'var(--radius-md)', display: 'grid', placeItems: 'center', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, color: 'var(--accent-light)', background: 'var(--grad-holo-soft)', border: '1.5px solid var(--glass-border)' }}>{s.n}</div>
+              <h3 style={{ margin: '0 0 var(--space-2)', fontSize: 'var(--text-lg)', color: 'var(--text-primary)' }}>{s.t}</h3>
+              <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', lineHeight: 'var(--leading-normal)' }}>{s.d}</p>
+            </GlassCard>
+          ))}
         </div>
       </section>
 
-      {/* Features Section – preserved with truthful highlights */}
-      <section className="bg-slate-900 py-20 px-6 text-white">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+      {/* ── Features ── */}
+      <section style={sectionStyle}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-8)', alignItems: 'center' }}>
           <div>
-            <h2 className="text-4xl font-bold mb-6">Built for Modern Students</h2>
-            <ul className="space-y-6">
-              <li className="flex items-start gap-3">
-                <span className="text-green-400 text-2xl mt-px">✓</span>
-                <p className="text-slate-200"><span className="font-semibold">Privacy First:</span> Text extraction happens on your device, not our servers.</p>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-green-400 text-2xl mt-px">✓</span>
-                <p className="text-slate-200"><span className="font-semibold">AI Accuracy:</span> Powered by the latest Gemini 2.5 Flash model.</p>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-green-400 text-2xl mt-px">✓</span>
-                <p className="text-slate-200"><span className="font-semibold">Lightning Fast:</span> Get your study guide in under 10 seconds.</p>
-              </li>
+            <h2 style={{ ...h2Style, marginBottom: 'var(--space-6)' }}>Built for modern students</h2>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+              {[
+                ['Privacy first', 'Text extraction happens on your device, not our servers.'],
+                ['AI accuracy', 'Powered by Google Gemini.'],
+                ['Lightning fast', 'Get your study guide in seconds.'],
+              ].map(([t, d]) => (
+                <li key={t} style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start' }}>
+                  <span style={{ color: 'var(--accent-emerald)', fontSize: 20, lineHeight: 1.2 }}>✓</span>
+                  <p style={{ margin: 0, color: 'var(--text-secondary)' }}><strong style={{ color: 'var(--text-primary)' }}>{t}:</strong> {d}</p>
+                </li>
+              ))}
             </ul>
           </div>
-          <div className="bg-slate-800/90 backdrop-blur-md p-8 rounded-3xl border border-slate-700/50 shadow-2xl hover:shadow-3xl transition-all duration-300">
-            <pre className="text-blue-400 text-sm overflow-x-auto font-mono bg-slate-950 rounded-2xl p-6 shadow-inner leading-relaxed whitespace-pre">
-              <code>
-                {`// Your AI Prompt in Action
-const prompt = "Generate a JSON array..."
+          <GlassCard holo style={{ padding: 'var(--space-6)' }}>
+            <pre style={{ margin: 0, overflowX: 'auto', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', color: '#7dd3fc', background: 'var(--bg-900)', borderRadius: 'var(--radius-md)', padding: 'var(--space-5)', lineHeight: 'var(--leading-relaxed)' }}>
+              <code>{`// Your AI prompt in action
+const prompt = "Generate a JSON array...";
 const result = await model.generate(pageText);
-return result.response.json();`}
-              </code>
+return result.response.json();`}</code>
             </pre>
-          </div>
+          </GlassCard>
         </div>
       </section>
 
-      {/* Personalized Vault / Dashboard Preview – Real & Truthful + NEW immersive analysis + exports */}
+      {/* ── Logged-in dashboard OR guest teaser ── */}
       {isLoggedIn ? (
-        <section className="py-20 px-6 bg-gradient-to-b from-white to-slate-50">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex items-baseline justify-between mb-8">
-              <div>
-                <h2 className="text-3xl font-bold text-slate-800">Your Private Vault</h2>
-                <p className="text-slate-600">Recently saved Q&amp;A pairs • Ready for quick revision</p>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={exportToCSV}
-                  className="px-5 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-2xl font-semibold hover:bg-slate-50 transition-all flex items-center gap-2"
-                >
-                  📥 CSV (Excel)
-                </button>
-                <button
-                  onClick={exportToPDF}
-                  className="px-5 py-2.5 bg-blue-600 text-white rounded-2xl font-semibold hover:bg-blue-700 transition-all flex items-center gap-2"
-                >
-                  📄 PDF
-                </button>
-                <Link 
-                  to="/myquestions" 
-                  className="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-2"
-                >
-                  Open Full Vault →
-                </Link>
-              </div>
+        <section style={sectionStyle}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 'var(--space-8)' }}>
+            <div>
+              <h2 style={h2Style}>Your private vault</h2>
+              <p style={{ margin: '6px 0 0', color: 'var(--text-secondary)' }}>
+                {user?.email ? `Signed in as ${user.email} · ` : ''}Recently saved Q&amp;A · ready for revision
+              </p>
             </div>
-
-            {/* VAULT PREVIEW CARDS */}
-            {vaultLoading ? (
-              <div className="text-center py-12 text-slate-400">Loading your saved study cards...</div>
-            ) : vaultCards.length > 0 ? (
-              <div className="grid md:grid-cols-3 gap-8 mb-16">
-                {vaultCards.map((card) => (
-                  <div 
-                    key={card.id}
-                    className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 ease-out flex flex-col"
-                  >
-                    <div className="flex-1">
-                      <p className="font-semibold text-slate-800 mb-4 line-clamp-3">
-                        {card.question}
-                      </p>
-                      <p className="text-slate-600 text-sm line-clamp-4 leading-relaxed">
-                        {card.answer}
-                      </p>
-                    </div>
-                    <div className="mt-6 pt-6 border-t border-slate-100 text-xs text-slate-400">
-                      Saved on {new Date(card.created_at).toLocaleDateString('en-IN')}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="bg-white rounded-3xl p-12 text-center shadow-xl mb-16">
-                <p className="text-slate-600 mb-2">Your vault is empty for now.</p>
-                <p className="text-sm text-slate-400">Generate your first quiz from Image OCR or Topic Search and save it here.</p>
-              </div>
-            )}
-
-            {/* IMMERSIVE VAULT ANALYSIS + GRAPH – fully dynamic, truthful, end-to-end */}
-            <div className="bg-white rounded-3xl shadow-2xl p-8">
-              <h3 className="text-2xl font-semibold text-slate-800 mb-6 flex items-center gap-3">
-                <span>Vault Insights</span>
-                <span className="text-blue-600 text-sm font-normal px-3 py-1 bg-blue-100 rounded-2xl">Live • Real data</span>
-              </h3>
-
-              {/* Stats row */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
-                <div className="bg-slate-50 rounded-2xl p-6 text-center">
-                  <div className="text-4xl font-extrabold text-blue-600 mb-1">{fullVaultCards.length}</div>
-                  <p className="text-slate-600 text-sm font-medium">Total Questions Saved</p>
-                </div>
-                <div className="bg-slate-50 rounded-2xl p-6 text-center">
-                  <div className="text-4xl font-extrabold text-blue-600 mb-1">
-                    {fullVaultCards.filter(c => {
-                      const d = new Date(c.created_at);
-                      const now = new Date();
-                      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-                    }).length}
-                  </div>
-                  <p className="text-slate-600 text-sm font-medium">This Month</p>
-                </div>
-                <div className="bg-slate-50 rounded-2xl p-6 text-center">
-                  <div className="text-4xl font-extrabold text-blue-600 mb-1">100%</div>
-                  <p className="text-slate-600 text-sm font-medium">Privacy Protected</p>
-                </div>
-                <div className="bg-slate-50 rounded-2xl p-6 text-center">
-                  <div className="text-4xl font-extrabold text-blue-600 mb-1">{fullVaultCards.length > 0 ? 'Ready' : '—'}</div>
-                  <p className="text-slate-600 text-sm font-medium">For Revision</p>
-                </div>
-              </div>
-
-              {/* Immersive Graph – SVG Bar Chart (truthful scale based on real total) */}
-              <div>
-                <h4 className="text-lg font-semibold text-slate-700 mb-4">Study Activity Trend</h4>
-                <div className="flex items-end gap-3 h-64 bg-slate-100 rounded-3xl p-8">
-                  {getActivityBars().map((height, i) => (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                      <div 
-                        className="w-full bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-2xl transition-all duration-700"
-                        style={{ height: `${height * 8}px` }}
-                      ></div>
-                      <span className="text-xs text-slate-500 font-medium">Week {4 - i}</span>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-center text-slate-400 text-xs mt-3">
-                  Bars scaled to your real saved questions • Updated live
-                </p>
-              </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)', alignItems: 'center' }}>
+              <Link to={ROUTES.REVIEW} style={ctaPrimary}>
+                <Icon3D code="🧠" size={18} /> Review{stats?.dueNow ? ` · ${stats.dueNow} due` : ''}
+              </Link>
+              <Link to={ROUTES.ANALYTICS} style={ctaGhost}><Icon3D code="📊" size={18} /> Analytics</Link>
+              <Link to={ROUTES.QUIZ} style={ctaGhost}><Icon3D code="🃏" size={18} /> Quiz</Link>
+              <button onClick={exportToCSV} style={ctaGhost}><Icon3D code="📥" size={18} /> CSV</button>
+              <button onClick={exportToPDF} style={ctaGhost}><Icon3D code="📄" size={18} /> PDF</button>
+              <Link to={ROUTES.VAULT} style={{ color: '#818cf8', fontWeight: 700, textDecoration: 'none' }}>Open full vault →</Link>
             </div>
           </div>
+
+          {/* Vault preview */}
+          {vaultLoading ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 'var(--space-6)', marginBottom: 'var(--space-12)' }}>
+              {[0, 1, 2].map((i) => (
+                <GlassCard key={i}>
+                  <Skeleton height={18} style={{ marginBottom: 12 }} />
+                  <Skeleton height={12} width="90%" style={{ marginBottom: 8 }} />
+                  <Skeleton height={12} width="75%" />
+                </GlassCard>
+              ))}
+            </div>
+          ) : vaultCards.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 'var(--space-6)', marginBottom: 'var(--space-12)' }}>
+              {vaultCards.map((card) => (
+                <GlassCard key={card.id} style={{ display: 'flex', flexDirection: 'column' }}>
+                  <p style={{ fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)', margin: '0 0 var(--space-3)' }}>{card.question}</p>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', lineHeight: 'var(--leading-normal)', margin: 0, flex: 1 }}>{card.answer}</p>
+                  <div style={{ marginTop: 'var(--space-5)', paddingTop: 'var(--space-4)', borderTop: '1px solid var(--glass-border)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                    Saved {new Date(card.created_at).toLocaleDateString('en-IN')}
+                  </div>
+                </GlassCard>
+              ))}
+            </div>
+          ) : (
+            <GlassCard style={{ marginBottom: 'var(--space-12)' }}>
+              <EmptyState
+                icon={<Icon3D code="🗂" size={30} />}
+                title="Your vault is empty"
+                description="Generate your first quiz from Image OCR or Topic Search and save it here."
+                action={<Link to={ROUTES.VALUE_INPUT} style={ctaPrimary}>Generate a quiz</Link>}
+              />
+            </GlassCard>
+          )}
+
+          {/* Insights */}
+          <GlassCard>
+            <h3 style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--space-3)', margin: '0 0 var(--space-6)', fontFamily: 'var(--font-display)', fontSize: 'var(--text-2xl)', color: 'var(--text-primary)' }}>
+              Vault insights <Badge tone="success">Live · real data</Badge>
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 'var(--space-4)', marginBottom: 'var(--space-10)' }}>
+              {[
+                [fullVaultCards.length, 'Total saved'],
+                [thisMonthCount, 'This month'],
+                ['100%', 'Privacy protected'],
+                [fullVaultCards.length > 0 ? 'Ready' : '—', 'For revision'],
+              ].map(([val, label], i) => (
+                <div key={i} style={{ background: 'var(--glass-bg-light)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-5)', textAlign: 'center' }}>
+                  <div className="ds-holo-text" style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-3xl)', fontWeight: 'var(--weight-black)', marginBottom: 4 }}>{val}</div>
+                  <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>{label}</p>
+                </div>
+              ))}
+            </div>
+
+            <h4 style={{ margin: '0 0 var(--space-4)', fontSize: 'var(--text-lg)', color: 'var(--text-primary)' }}>Study activity</h4>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-3)', height: 200, background: 'var(--glass-bg-light)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-6)' }}>
+              {bars.map((h, i) => (
+                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', gap: 'var(--space-2)', height: '100%' }}>
+                  <div style={{ width: '100%', height: `${Math.max((h / maxBar) * 100, 2)}%`, background: 'var(--grad-primary)', borderRadius: 'var(--radius-sm) var(--radius-sm) 0 0', transition: 'height var(--dur-slow) var(--ease-out)' }} />
+                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{['4w', '3w', '2w', 'Now'][i]}</span>
+                </div>
+              ))}
+            </div>
+            <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 'var(--text-xs)', marginTop: 'var(--space-3)' }}>
+              Cards saved per week — last 4 weeks (live, from your vault)
+            </p>
+          </GlassCard>
         </section>
       ) : (
-        /* Guest Teaser – Honest value proposition based on your backend features */
-        <section className="py-20 px-6 bg-gradient-to-b from-white to-slate-50">
-          <div className="max-w-7xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-slate-800 mb-4">Make StudyAI Your Personal AI Tutor</h2>
-            <p className="max-w-lg mx-auto text-slate-600 mb-10">
-              Create a free account to get quizzes tailored to your age, degree, difficulty level, 
-              and preferred question style. Your data stays private and your vault grows with every session.
+        <section style={{ ...sectionStyle, textAlign: 'center' }}>
+          <GlassCard holo style={{ maxWidth: 560, margin: '0 auto' }}>
+            <h2 style={{ ...h2Style, fontSize: 'var(--text-2xl)', marginBottom: 'var(--space-3)' }}>Make StudyAI your personal AI tutor</h2>
+            <p style={{ maxWidth: 460, margin: '0 auto var(--space-8)', color: 'var(--text-secondary)' }}>
+              Create a free account for quizzes tailored to your age, degree, difficulty, and preferred question style.
+              Your data stays private and your vault grows with every session.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                to="/signup"
-                className="px-8 py-4 bg-white text-slate-700 border border-slate-300 rounded-2xl font-bold shadow-md hover:shadow-xl hover:-translate-y-px transition-all duration-300"
-              >
-                Create Free Account
-              </Link>
-              <Link 
-                to="/login"
-                className="px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-xl hover:shadow-2xl hover:-translate-y-px transition-all duration-300"
-              >
-                Log In
-              </Link>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)', justifyContent: 'center' }}>
+              <Link to={ROUTES.SIGNUP} style={ctaPrimary}>Create free account</Link>
+              <Link to={ROUTES.LOGIN} style={ctaGhost}>Log in</Link>
             </div>
-          </div>
+          </GlassCard>
         </section>
       )}
 
-      {/* Footer */}
-      <footer className="py-12 border-t border-slate-100 text-center text-slate-400 text-sm">
-        © {new Date().getFullYear()} StudyAI Project • Built with React, Tesseract.js, and Gemini
-      </footer>
+      {/* ── Footer ── */}
+      <Footer />
+      </div>
     </div>
   );
 }
-
-
-
