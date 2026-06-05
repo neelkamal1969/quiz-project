@@ -428,7 +428,7 @@ export default function Footer() {
         <div className="footer-signatures">
           <div className="signature-capsule" title="System Ideator">
             <span className="sig-prefix">Ideated by</span>
-            <span className="sig-name-mridul">Mridul</span>
+            <span className="sig-name-mridul">Mridul Gupta</span>
           </div>
           <div className="sig-dot-divider" aria-hidden="true" />
           <div className="signature-capsule" title="Interface Designer">
