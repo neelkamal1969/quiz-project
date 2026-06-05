@@ -147,7 +147,7 @@ export default function Footer() {
 
       {/* Bottom bar */}
       <div style={{ borderTop: '1px solid var(--glass-border)', padding: 'var(--space-5) var(--space-6)', textAlign: 'center', color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
-        © {new Date().getFullYear()} StudyAI · Built by Neelkamal Gupta
+        © {new Date().getFullYear()} StudyAI · Ideated by Mridul & Designed by Neelkamal Gupta
       </div>
 
       {/* Mail-client chooser */}
